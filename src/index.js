@@ -18,7 +18,7 @@ const defaultLayerPath = path.resolve(__dirname, '../views/layouts/index.handleb
 
 const appServer = http.Server(app);
 
-initWsServer(appServer);
+const appWSServer = initWsServer(appServer);
 
 appServer.listen(puerto, () => console.log('Server UP en puerto', puerto));
 
@@ -28,7 +28,6 @@ app.set('views', './views');
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-//app.use('/productos/', apiRouter);
 
 /*Desde Acá router*/
 /*Declaración de producto para manejo del array de producto en memoria y creación de instancia 
@@ -98,11 +97,9 @@ app.post('/guardar/', (req, res) => {
     productos = prod.guardar(productos);
 
     res.status =201;
-    /*res.json({
+    res.json({
         data: productos[productos.length-1],
-    })*/
-    //res.render('alta.handlebars', productos);
-    res.redirect('http://localhost:8080/alta.html');
+    })
 });
 
 /*Actualización de un objeto en array productos*/
@@ -173,7 +170,6 @@ app.get('/', (req, res) => {
 /*
  */
 
-const appWSServer = io(appServer);
 
 let messages = [];
 
@@ -192,10 +188,9 @@ appWSServer.on('connection', function (socket) {
         socketId: socket.client.id,
         message: data,
       };
-      //console.log('Nuevos messages',newMessage);
-      //console.log('Muestro productos',productos);
+
       messages.push(data);
-      //messages = productos;
+
       console.log('messages', messages);
   
       //PARA RESPONDERLE A UN SOLO CLIENTE
@@ -221,21 +216,3 @@ appWSServer.on('connection', function (socket) {
       socket.emit('messages', messages);
     });
   });
-
-/*appWSServer.on('connection', (socket)=>{
-    console.log('\n\nUn Cliente se ha conectado');
-    console.log(`ID del Socket del cliente=> ${socket.client.id}`);
-    console.log(`ID del Socket del server=> ${socket.id}`);
-
-    socket.on('new-message', function(data){
-
-        const newMessage = {
-            SocketId: socket.client.id,
-            message: data,
-        };
-        console.log(newMessage);
-        messages.push(newMessage);
-
-        appWSServer.emit('messages', messages);
-    });
-});*/
